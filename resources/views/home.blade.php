@@ -9,30 +9,19 @@
 <body>
     <h1>ToDo</h1>
 
-    <form action="/create" method="POST">
-        <label for="tarefa">Nome da Tarefa:</label>
-        <br>
-        <input type="text" name="tarefa" id="tarefa">
-        <br>
-        <input type="submit" value="Create">
-    </form>
-
-    <br>
-
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>1</td>
-                <td>Tarefa 1</td>
-            </tr>
-        </tbody>
-    </table>
+    <form action="{{ route('notes.store') }}" method="post">
+    @csrf <!-- Include CSRF token for Laravel -->
+    <label for="name">Nome:</label><br>
+    <input type="text" id="name" name="name"><br><br>
+    
+    <label for="content">Conteúdo:</label><br>
+    <textarea id="content" name="content" rows="4" cols="50"></textarea><br><br>
+    
+    <label for="tags">Tags (separadas-por-vírgula):</label><br>
+    <input type="text" id="tags" name="tags"><br><br>
+    
+    <input type="submit" value="Enviar">
+</form>
 
     <br>
 
