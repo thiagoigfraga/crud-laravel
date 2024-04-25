@@ -7,6 +7,16 @@
     <title>Home - ToDo</title>
 </head>
 <body>
+
+    <nav>
+        <ul>
+            <li><a href="{{ route('home') }}">Criar Nota</a></li>
+        </ul>
+        <ul>
+            <li><a href="{{ route('notes.index') }}">Todas as Notas</a></li>
+        </ul>
+    </nav>
+
     <h1>ToDo</h1>
 
     <form action="{{ route('notes.store') }}" method="post">
@@ -23,28 +33,33 @@
     <input type="submit" value="Enviar">
 </form>
 
-    <br>
+{{-- resources/views/delete-note-form.blade.php --}}
 
-    <form action="/update" method="POST">
-        <label for="id">ID:</label>
-        <br>
-        <input type="number" name="id" id="id">
-        <br>
-        <label for="tarefa">Alteração:</label>
-        <br>
-        <input type="text" name="name" id="name">
-        <br>
-        <input type="submit" value="Update">
-    </form>
+@if(session('success'))
+    <div>
+        {{ session('success') }}
+    </div>
+@endif
 
-    <br>
+@if(session('error'))
+    <div>
+        {{ session('error') }}
+    </div>
+@endif
 
-    <form action="/delete" method="POST">
-        <label for="id">ID:</label>
-        <br>
-        <input type="number" name="id" id="id">
-        <br>
-        <input type="submit" value="Delete">
-    </form>
+<form action="{{ route('notes.deleteById') }}" method="POST">
+    @csrf
+    <div>
+        <label for="note_id">Note ID:</label>
+        <input type="number" name="note_id" id="note_id" required>
+    </div>
+    <div>
+        <button type="submit">Delete Note</button>
+    </div>
+</form>
+
+
+<br>
+
 </body>
 </html>

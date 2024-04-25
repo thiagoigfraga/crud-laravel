@@ -7,25 +7,28 @@ use App\Models\Note;
 
 class NotesController extends Controller
 {
-    public function store(Request $request)
-    {
-        $note = new Note;
-        $note->name = $request->input('name');
-        $note->content = $request->input('content');
-        
-        $tags = $request->input('tags');
-        if (is_string($tags)) {
-            $tags = explode(',', $tags);
-        }
-        
-        $tagsString = implode(',', $tags); // Convert the array of tags back to a string
-        
-        $note->tags = $tagsString; // Assign the string of tags to the model
-        
-        $note->save();
+// Inside NotesController.php
+
+public function store(Request $request)
+{
+    $validatedData = $request->validate([
+        'name' => 'required|string|max:255',
+        'content' => 'required|string',
+        'tags' => 'nullable|string',
+    ]);
+
+    $note = new Note;
+    $note->name = $validatedData['name'];
+    $note->content = $validatedData['content'];
     
-        return "Note added successfully!";
-    }
+    // Handle tags if provided
+    $tags = $validatedData['tags'] ? explode(',', $validatedData['tags']) : [];
+    $note->tags = implode(',', $tags); // Assign the string of tags to the model
+    
+    $note->save();
+
+    return redirect()->route('notes.index')->with('success', 'Note added successfully!');
+}
 
     public function index()
     {
@@ -34,18 +37,16 @@ class NotesController extends Controller
         return view('notes.index', ['notes' => $notes]);
     }
 
-    public function show($id)
-    {
-        $note = Note::find($id);
-    
-        if ($note) {
-            // Note found, return a view with the note data
-            return view('notes', ['note' => $note]);
-        } else {
-            // Note not found, return a 404 error
-            abort(404);
-        }
+public function show($id)
+{
+    try {
+        $note = Note::findOrFail($id);
+        return view('note', ['note' => $note]);
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        // Tratar o caso em que a nota com o ID especificado não existe
+        return redirect()->route('notes.index')->with('error', 'Note not found.');
     }
+}
 
     public function update(Request $request, $id)
     {
@@ -58,13 +59,24 @@ class NotesController extends Controller
         return "Note updated successfully!";
     }
 
-    public function destroy($id)
-    {
-        $note = Note::find($id);
+public function destroy(Request $request)
+{
+    return view('deleteView', ['note' => $notes]);
+}
+
+public function deleteById(Request $request)
+{
+    $noteId = $request->input('note_id');
+    $note = Note::find($noteId);
+
+    if ($note) {
         $note->delete();
-    
-        return "Note deleted successfully!";
+        return redirect()->back()->with('success', 'Note deleted successfully.');
     }
+
+    return redirect()->back()->with('error', 'Note does not exist.');
+}
+
 
     // In the migration file
     public function up()
